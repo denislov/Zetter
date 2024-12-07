@@ -32,7 +32,7 @@
     "faiss-node": "^0.5.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.14.0",
+    "@eslint/js": "^9.16.0",
     "@types/node": "^22.10.1",
     "eslint": "^9.15.0",
     "faiss-node": "^0.5.1",
