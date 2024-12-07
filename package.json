@@ -36,7 +36,7 @@
     "@types/node": "^22.10.1",
     "eslint": "^9.15.0",
     "faiss-node": "^0.5.1",
-    "prettier": "^3.4.1",
+    "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.16.0",
     "zotero-plugin-scaffold": "^0.1.7",
