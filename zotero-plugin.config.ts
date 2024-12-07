@@ -1,5 +1,6 @@
 import { defineConfig } from "zotero-plugin-scaffold";
 import pkg from "./package.json";
+import { resolve } from "path";
 
 export default defineConfig({
   source: ["src", "addon"],
@@ -35,7 +36,9 @@ export default defineConfig({
       },
     ],
   },
-
+  configureWebpack: {
+    resolve: { fallback: { fs: false } },
+  },
   // If you need to see a more detailed log, uncomment the following line:
   // logLevel: "trace",
 });
