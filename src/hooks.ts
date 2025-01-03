@@ -6,7 +6,7 @@ import {
   UIExampleFactory,
 } from "./modules/examples";
 
-import { Faiss } from "./modules/faiss";
+import { VectorStore } from "./modules/faiss";
 import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
@@ -70,7 +70,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   UIExampleFactory.registerStyleSheet(win);
 
   UIExampleFactory.registerRightClickMenuItem();
-  Faiss.registerRightClickMenuItem();
+  VectorStore.registerRightClickMenuItem();
 
   UIExampleFactory.registerRightClickMenuPopup(win);
 

@@ -1,102 +1,147 @@
-import { IndexFlatL2, Index, IndexFlatIP, MetricType } from "faiss-node";
 import { getLocaleID, getString } from "../utils/locale";
-import { fstat } from "fs";
-function example(
-  target: any,
-  propertyKey: string | symbol,
-  descriptor: PropertyDescriptor,
-) {
-  const original = descriptor.value;
-  descriptor.value = function (...args: any) {
-    try {
-      ztoolkit.log(`Calling example ${target.name}.${String(propertyKey)}`);
-      return original.apply(this, args);
-    } catch (e) {
-      ztoolkit.log(`Error in example ${target.name}.${String(propertyKey)}`, e);
-      throw e;
-    }
-  };
-  return descriptor;
-}
+import weaviate, { WeaviateClient } from "weaviate-ts-client";
+import { getDocument } from "pdfjs-dist";
+import { OpenAI } from "openai";
 
-export class Faiss {
-  @example
-  static registerRightClickMenuItem() {
-    const menuIcon = `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`;
-    // item menuitem with icon
-    ztoolkit.Menu.register("item", {
-      tag: "menuitem",
-      id: "zotero-itemmenu-addonzetter-testfaiss",
-      label: "测试faiss",
-      commandListener: (ev) => {},
-      icon: menuIcon,
+export class VectorStore {
+  private client: ReturnType<typeof weaviate.client>;
+  private openai: OpenAI;
+  private className = "ZoteroItem";
+
+  constructor() {
+    this.client = weaviate.client({
+      scheme: "http",
+      host: "localhost:8080",
     });
+
+    this.openai = new OpenAI({
+      baseURL: "http://localhost:11434/v1", // Ollama compatible API
+      apiKey: "ollama", // Required but unused
+    });
+
+    this.initSchema();
   }
 
-  testFaiss() {
-    const dimension = 2;
-    const index = fstat(1, () => {});
-    // Zotero.File.getCharsetFromFile()
-    // IOUtils.r
+  private async initSchema() {
+    const schemaConfig = {
+      class: this.className,
+      vectorizer: "none", // We'll use Ollama for embeddings
+      properties: [
+        {
+          name: "title",
+          dataType: ["string"],
+        },
+        {
+          name: "content",
+          dataType: ["text"],
+        },
+        {
+          name: "itemId",
+          dataType: ["string"],
+        },
+        {
+          name: "vector",
+          dataType: ["number[]"],
+        },
+      ],
+    };
 
-    // ztoolkit.log(index.getDimension()); // 2
-    // ztoolkit.log(index.isTrained()); // true
-    // ztoolkit.log(index.ntotal()); // 0
+    try {
+      await this.client.schema.classCreator().withClass(schemaConfig).do();
+    } catch (e) {
+      ztoolkit.log("Schema already exists or error creating schema", e);
+    }
+  }
 
-    //     // inserting data into index.
-    //     index.add([1, 0]);
-    //     index.add([1, 2]);
-    //     index.add([1, 3]);
-    //     index.add([1, 1]);
+  async storeItem(item: Zotero.Item) {
+    const attachmentId = item
+      .getAttachments()
+      .find(
+        (id) =>
+          Zotero.Items.get(id).attachmentContentType === "application/pdf",
+      );
 
-    //     ztoolkit.log(index.ntotal()); // 4
+    if (!attachmentId) return;
 
-    //     const k = 4;
-    //     const results = index.search([1, 0], k);
-    //     ztoolkit.log(results.labels); // [ 0, 3, 1, 2 ]
-    //     ztoolkit.log(results.distances); // [ 0, 1, 4, 9 ]
+    const pdfAttachment = Zotero.Items.get(attachmentId) as Zotero.Item & {
+      contentType: string;
+    };
 
-    //     // Save index
-    //     const fname = "faiss.index";
-    //     index.write(fname);
+    if (!pdfAttachment?.contentType) return;
 
-    //     // Load saved index
-    //     const index_loaded = IndexFlatL2.read(fname);
-    //     ztoolkit.log(index_loaded.getDimension()); //2
-    //     ztoolkit.log(index_loaded.ntotal()); //4
-    //     const results1 = index_loaded.search([1, 1], 4);
-    //     ztoolkit.log(results1.labels); // [ 3, 0, 1, 2 ]
-    //     ztoolkit.log(results1.distances); // [ 0, 1, 1, 4 ]
+    const pdfText = await this.extractPdfText(pdfAttachment);
+    const embedding = await this.getEmbedding(pdfText);
 
-    //     // Merge index
-    //     const newIndex = new IndexFlatL2(dimension);
-    //     newIndex.mergeFrom(index);
-    //     ztoolkit.log(newIndex.ntotal()); // 4
+    await this.client.data
+      .creator()
+      .withClassName(this.className)
+      .withProperties({
+        title: item.getField("title"),
+        content: pdfText,
+        itemId: item.id,
+        vector: embedding,
+      })
+      .do();
+  }
 
-    //     // Remove items
-    //     ztoolkit.log(newIndex.search([1, 2], 1)); // { distances: [ 0 ], labels: [ 1 ] }
-    //     const removedCount = newIndex.removeIds([0]);
-    //     ztoolkit.log(removedCount); // 1
-    //     ztoolkit.log(newIndex.ntotal()); // 3
-    //     ztoolkit.log(newIndex.search([1, 2], 1)); // { distances: [ 0 ], labels: [ 0 ] }
+  private async extractPdfText(
+    attachment: Zotero.Item & { contentType: string },
+  ): Promise<string> {
+    try {
+      const file = Zotero.getFile(attachment.id);
+      if (!file) return "";
 
-    //     // IndexFlatIP
-    //     const ipIndex = new IndexFlatIP(2);
-    //     ipIndex.add([1, 0]);
+      const pdfData = await file.readBinary();
+      const pdfDoc = await getDocument({
+        data: new Uint8Array(pdfData),
+      }).promise;
 
-    //     // Serialize an index
-    //     const index_buf = newIndex.toBuffer();
-    //     const deserializedIndex = Index.fromBuffer(index_buf);
-    //     ztoolkit.log(deserializedIndex.ntotal()); // 3
+      let text = "";
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const page = await pdfDoc.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map((item: any) => item.str).join(" ");
+      }
 
-    //     // Factory index
-    //     const hnswIndex = Index.fromFactory(
-    //       2,
-    //       "HNSW,Flat",
-    //       MetricType.METRIC_INNER_PRODUCT,
-    //     );
-    //     const x = [1, 0, 0, 1];
-    //     hnswIndex.train(x);
-    //     hnswIndex.add(x);
+      return text;
+    } catch (e) {
+      ztoolkit.log("Error extracting PDF text", e);
+      return "";
+    }
+  }
+
+  private async getEmbedding(text: string): Promise<number[]> {
+    const response = await this.openai.embeddings.create({
+      model: "llama2",
+      input: text,
+    });
+    return response.data[0].embedding;
+  }
+
+  static registerRightClickMenuItem() {
+    const menuIcon = `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`;
+    ztoolkit.Menu.register("item", {
+      tag: "menuitem",
+      id: "zotero-itemmenu-addonzetter-store-vector",
+      label: getString("menu-store-vector"),
+      icon: menuIcon,
+      commandListener: (ev) => {
+        const vectorStore = new VectorStore();
+        const popwin = new ztoolkit.ProgressWindow(addon.data.config.addonName)
+          .createLine({
+            text: "Item storing!",
+            type: "default",
+            progress: 30,
+          })
+          .show();
+        // await Zotero.Promise.delay(1000);
+        // vectorStore.storeItem(item);
+        popwin.changeLine({
+          text: "Item stored in vector database!",
+          type: "success",
+          progress: 100,
+        });
+      },
+    });
   }
 }
