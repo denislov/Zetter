@@ -6,7 +6,7 @@ import {
   UIExampleFactory,
 } from "./modules/examples";
 
-import { VectorStore } from "./modules/faiss";
+import { VectorStore } from "./modules/vector_store";
 import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
@@ -70,7 +70,11 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   UIExampleFactory.registerStyleSheet(win);
 
   UIExampleFactory.registerRightClickMenuItem();
-  VectorStore.registerRightClickMenuItem();
+  const vector_tool = new VectorStore();
+  vector_tool.listCollections().then((value) => {
+    ztoolkit.log(value);
+  });
+  // VectorStore.registerRightClickMenuItem();
 
   UIExampleFactory.registerRightClickMenuPopup(win);
 
