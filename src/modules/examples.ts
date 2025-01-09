@@ -143,7 +143,8 @@ export class UIExampleFactory {
       tag: "menuitem",
       id: "zotero-itemmenu-addontemplate-test",
       label: getString("menuitem-label"),
-      commandListener: (ev) => addon.hooks.onDialogEvents("dialogExample"),
+      commandListener: (_ev: Event) =>
+        addon.hooks.onDialogEvents("dialogExample"),
       icon: menuIcon,
     });
   }
@@ -186,7 +187,7 @@ export class UIExampleFactory {
   @example
   static async registerExtraColumn() {
     const field = "test1";
-    await Zotero.ItemTreeManager.registerColumns({
+    await Zotero.ItemTreeManager.registerColumn({
       pluginID: addon.data.config.addonID,
       dataKey: field,
       label: "text column",
@@ -200,7 +201,7 @@ export class UIExampleFactory {
   @example
   static async registerExtraColumnWithCustomCell() {
     const field = "test2";
-    await Zotero.ItemTreeManager.registerColumns({
+    await Zotero.ItemTreeManager.registerColumn({
       pluginID: addon.data.config.addonID,
       dataKey: field,
       label: "custom column",
