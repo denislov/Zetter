@@ -1,13 +1,13 @@
 {
-  "name": "zotero-plugin-template",
+  "name": "zetter",
   "version": "3.0.2",
-  "description": "Zotero Plugin Template",
+  "description": "Zotero Better Plugin",
   "config": {
-    "addonName": "Zotero Plugin Template",
-    "addonID": "addontemplate@euclpts.com",
-    "addonRef": "addontemplate",
-    "addonInstance": "AddonTemplate",
-    "prefsPrefix": "extensions.zotero.addontemplate"
+    "addonName": "Zotero Better",
+    "addonID": "wanghai915@qq.com",
+    "addonRef": "zetter",
+    "addonInstance": "Zetter",
+    "prefsPrefix": "extensions.zotero.zetter"
   },
   "repository": {
     "type": "git",

@@ -5,6 +5,8 @@ import {
   PromptExampleFactory,
   UIExampleFactory,
 } from "./modules/examples";
+import { registerViews } from "./modules/views";
+
 import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
@@ -17,22 +19,21 @@ async function onStartup() {
   ]);
 
   initLocale();
+  // BasicExampleFactory.registerPrefs();
 
-  BasicExampleFactory.registerPrefs();
+  // BasicExampleFactory.registerNotifier();
 
-  BasicExampleFactory.registerNotifier();
+  // KeyExampleFactory.registerShortcuts();
 
-  KeyExampleFactory.registerShortcuts();
+  // await UIExampleFactory.registerExtraColumn();
 
-  await UIExampleFactory.registerExtraColumn();
+  // await UIExampleFactory.registerExtraColumnWithCustomCell();
 
-  await UIExampleFactory.registerExtraColumnWithCustomCell();
+  // UIExampleFactory.registerItemPaneCustomInfoRow();
 
-  UIExampleFactory.registerItemPaneCustomInfoRow();
+  // UIExampleFactory.registerItemPaneSection();
 
-  UIExampleFactory.registerItemPaneSection();
-
-  UIExampleFactory.registerReaderItemPaneSection();
+  // UIExampleFactory.registerReaderItemPaneSection();
 
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
@@ -65,29 +66,29 @@ async function onMainWindowLoad(win: Window): Promise<void> {
     text: `[30%] ${getString("startup-begin")}`,
   });
 
-  UIExampleFactory.registerStyleSheet(win);
-
+  // UIExampleFactory.registerStyleSheet(win);
+  registerViews(win);
   UIExampleFactory.registerRightClickMenuItem();
 
-  UIExampleFactory.registerRightClickMenuPopup(win);
+  // UIExampleFactory.registerRightClickMenuPopup(win);
 
-  UIExampleFactory.registerWindowMenuWithSeparator();
+  // UIExampleFactory.registerWindowMenuWithSeparator();
 
-  PromptExampleFactory.registerNormalCommandExample();
+  // PromptExampleFactory.registerNormalCommandExample();
 
-  PromptExampleFactory.registerAnonymousCommandExample(win);
+  // PromptExampleFactory.registerAnonymousCommandExample(win);
 
-  PromptExampleFactory.registerConditionalCommandExample();
+  // PromptExampleFactory.registerConditionalCommandExample();
 
-  await Zotero.Promise.delay(1000);
+  // await Zotero.Promise.delay(1000);
 
   popupWin.changeLine({
     progress: 100,
     text: `[100%] ${getString("startup-finish")}`,
   });
-  popupWin.startCloseTimer(5000);
+  popupWin.startCloseTimer(3000);
 
-  addon.hooks.onDialogEvents("dialogExample");
+  // addon.hooks.onDialogEvents("dialogExample");
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {

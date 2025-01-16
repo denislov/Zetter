@@ -1,4 +1,5 @@
 import { getLocaleID, getString } from "../utils/locale";
+import { URLInputDialog } from "./urlDialog";
 
 function example(
   target: any,
@@ -143,7 +144,10 @@ export class UIExampleFactory {
       tag: "menuitem",
       id: "zotero-itemmenu-addontemplate-test",
       label: getString("menuitem-label"),
-      commandListener: (ev) => addon.hooks.onDialogEvents("dialogExample"),
+      commandListener: (ev) => {
+        const dialog = new URLInputDialog();
+        dialog.open();
+      },
       icon: menuIcon,
     });
   }
