@@ -5,7 +5,8 @@ import {
   PromptExampleFactory,
   UIExampleFactory,
 } from "./modules/examples";
-import { registerViews } from "./modules/views";
+import { config } from "../package.json";
+import Views from "./modules/views";
 
 import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
@@ -19,21 +20,8 @@ async function onStartup() {
   ]);
 
   initLocale();
-  // BasicExampleFactory.registerPrefs();
 
-  // BasicExampleFactory.registerNotifier();
-
-  // KeyExampleFactory.registerShortcuts();
-
-  // await UIExampleFactory.registerExtraColumn();
-
-  // await UIExampleFactory.registerExtraColumnWithCustomCell();
-
-  // UIExampleFactory.registerItemPaneCustomInfoRow();
-
-  // UIExampleFactory.registerItemPaneSection();
-
-  // UIExampleFactory.registerReaderItemPaneSection();
+  Zotero[config.addonInstance].views = new Views();
 
   await Promise.all(
     Zotero.getMainWindows().map((win) => onMainWindowLoad(win)),
@@ -60,35 +48,19 @@ async function onMainWindowLoad(win: Window): Promise<void> {
     })
     .show();
 
-  await Zotero.Promise.delay(1000);
+  await Zotero.Promise.delay(500);
   popupWin.changeLine({
     progress: 30,
     text: `[30%] ${getString("startup-begin")}`,
   });
 
-  // UIExampleFactory.registerStyleSheet(win);
-  registerViews(win);
-  UIExampleFactory.registerRightClickMenuItem();
-
-  // UIExampleFactory.registerRightClickMenuPopup(win);
-
-  // UIExampleFactory.registerWindowMenuWithSeparator();
-
-  // PromptExampleFactory.registerNormalCommandExample();
-
-  // PromptExampleFactory.registerAnonymousCommandExample(win);
-
-  // PromptExampleFactory.registerConditionalCommandExample();
-
-  // await Zotero.Promise.delay(1000);
+  // UIExampleFactory.registerRightClickMenuItem();
 
   popupWin.changeLine({
     progress: 100,
     text: `[100%] ${getString("startup-finish")}`,
   });
-  popupWin.startCloseTimer(3000);
-
-  // addon.hooks.onDialogEvents("dialogExample");
+  popupWin.startCloseTimer(500);
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
@@ -101,7 +73,7 @@ function onShutdown(): void {
   addon.data.dialog?.window?.close();
   // Remove addon object
   addon.data.alive = false;
-  delete Zotero[addon.data.config.addonInstance];
+  delete Zotero[config.addonInstance];
 }
 
 /**

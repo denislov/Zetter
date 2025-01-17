@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- prettier-ignore -->
+<!DOCTYPE window>
+<!-- prettier-ignore -->
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!-- prettier-ignore -->
+<?xml-stylesheet href="chrome://zotero/skin/zotero.css" type="text/css"?>
+<!-- prettier-ignore -->
+<?xml-stylesheet href="chrome://zotero-platform/content/zotero.css" type="text/css"?>
+<!-- prettier-ignore -->
+<window
+ id="__addonRef__-standalone"
+  title="Save Web Snapshot Panel"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  windowtype="__addonRef__-standalone"
+  persist="screenX screenY width height"
+  onload=""
+>
+<xul:linkset>
+  <html:link rel="localization" href="browser/menubar.ftl" />
+  <html:link rel="localization" href="browser/browserSets.ftl" />
+  <html:link rel="localization" href="toolkit/global/textActions.ftl" />
+  <html:link rel="localization" href="zotero.ftl" />
+  <html:link rel="localization" href="__addonRef__-standalone.ftl" />
+</xul:linkset>
+<script src="chrome://zotero/content/include.js"></script>
+<script src="chrome://zotero/content/customElements.js"></script>
+<script src="chrome://__addonRef__/content/scripts/customElements.js"></script>
+<vbox id="dialog-content" align="center">
+  <label value="请输入网页 URL:" />
+  <textbox id="url-textbox" width="200" height="300" />
+  <hbox>
+    <button id="add-source" value="添加" data-l10n-id="add-source" />
+    <button id="pin-window" data-l10n-id="pin-window" />
+  </hbox>
+</vbox>
+<html:div class="separator"></html:div>
+</window>

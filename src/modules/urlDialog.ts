@@ -3,10 +3,11 @@ import { getString } from "../utils/locale";
 
 export class URLInputDialog {
   private window: Window;
-  private dialog: Window;
+  private dialog: Window | null;
 
   constructor() {
     this.window = Zotero.getMainWindow();
+    this.dialog = null;
   }
 
   public open() {
@@ -37,48 +38,48 @@ export class URLInputDialog {
     };
 
     // 打开对话框
-    this.dialog = this.window.openDialog(
-      rootURI + "content/dialog/dialog.html",
+    this.dialog = ztoolkit.getGlobal("openDialog")(
+      `chrome://${config.addonRef}/content/dialog.xhtml`,
       "",
-      "chrome,centerscreen,resizable=false,width=500,height=200",
+      "chrome,centerscreen,resizable=false,width=500,height=300",
       params,
     );
 
     // 设置对话框内容和事件监听
-    this.dialog.addEventListener("load", () => {
-      const doc = this.dialog.document;
+    this.dialog!.addEventListener("load", () => {
+      const doc = this.dialog!.document;
 
       // 设置对话框标题
-      doc.title = getString("snapshot-dialog.title");
+      doc.title = getString("snapshot-dialog-title");
 
       // 插入自定义内容
-      const container = doc.querySelector(".dialog-content");
-      container.innerHTML = dialogContent;
+      const container = doc.getElementById("dialog-content");
+      ztoolkit.log(container);
 
       // 表单提交处理
-      const form = doc.getElementById("snapshot-form") as HTMLFormElement;
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const urlInput = doc.getElementById("url-input") as HTMLInputElement;
-        params.dataOut = {
-          url: urlInput.value,
-          accepted: true,
-        };
-        this.dialog.close();
-      });
+      // const form = doc.getElementById("snapshot-form") as HTMLFormElement;
+      // form.addEventListener("submit", (e) => {
+      //   e.preventDefault();
+      //   const urlInput = doc.getElementById("url-input") as HTMLInputElement;
+      //   params.dataOut = {
+      //     url: urlInput.value,
+      //     accepted: true,
+      //   };
+      //   this.dialog?.close();
+      // });
 
       // 取消按钮处理
-      const cancelButton = doc.getElementById("cancel-button");
-      cancelButton.addEventListener("click", () => {
-        params.dataOut = {
-          accepted: false,
-        };
-        this.dialog.close();
-      });
+      // const cancelButton = doc.getElementById("cancel-button")!;
+      // cancelButton.addEventListener("click", () => {
+      //   params.dataOut = {
+      //     accepted: false,
+      //   };
+      //   this.dialog?.close();
+      // });
 
       // 自动聚焦到 URL 输入框
-      const urlInput = doc.getElementById("url-input") as HTMLInputElement;
-      urlInput.focus();
+      // const urlInput = doc.getElementById("url-input") as HTMLInputElement;
+      // urlInput.focus();
     });
 
     // 等待对话框关闭
