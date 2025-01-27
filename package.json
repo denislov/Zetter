@@ -28,7 +28,7 @@
     "update-deps": "npm update --save"
   },
   "dependencies": {
-    "openai": "^4.77.4",
+    "openai": "^4.80.1",
     "pdfjs-dist": "^3.11.174",
     "zotero-plugin-toolkit": "^4.1.1"
   },
